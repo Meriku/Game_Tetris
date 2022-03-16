@@ -9,7 +9,10 @@ namespace Tetris
 {
     internal class Program
     {
-        static int speed = 200;
+
+        static object locker = new object();
+
+        static int speed = 500;
 
         static void Main(string[] args)
         {
@@ -27,32 +30,32 @@ namespace Tetris
             while (true)
             {
                 
-                ConsoleKeyInfo key = Console.ReadKey();
+                ConsoleKeyInfo key = Console.ReadKey(true);
 
-                if (key.Key.Equals(ConsoleKey.UpArrow))                                 // Вращаем фигуру
+                if (!Figure.IsMoving)
                 {
-                    Figure.Rotate();
+                    if (key.Key.Equals(ConsoleKey.UpArrow))                                 // Вращаем фигуру
+                    {
+                        Figure.Rotate();
+                    }
+                    if (key.Key.Equals(ConsoleKey.DownArrow))
+                    {
+                        speed = 10;
+                    }
+                    if (key.Key.Equals(ConsoleKey.LeftArrow))
+                    {
+                        Figure.Move("left");
+                    }
+                    if (key.Key.Equals(ConsoleKey.RightArrow))
+                    {
+                        Figure.Move("right");
+                    }             
                 }
-                if (key.Key.Equals(ConsoleKey.DownArrow))
-                {          
-                    speed = 50;                   
-                }
-                if (key.Key.Equals(ConsoleKey.LeftArrow))
-                {
-                    Figure.Move("left");
-                }
-                if (key.Key.Equals(ConsoleKey.RightArrow))
-                {
-                    Figure.Move("right");
-                }
-                if (key.Key.Equals(ConsoleKey.R))                                      
-                {
-                    Figure.CleareLowerBox();
-                }
+ 
+
 
             }
 
-            Console.ReadLine();
         }
 
 
@@ -60,21 +63,26 @@ namespace Tetris
         {
             while (true)
             {
-                if (speed < 200)
+             
+                lock (locker)
+                {
+                    if (!Figure.IsMoving)
+                    {
+                        Figure.Move("down");
+
+                        Thread.Sleep(speed);
+                    }
+                        
+                }
+
+                if (speed < 500)
                 {
                     speed += 50;
                 }
 
-                if (Figure.IsNextPointLowerBorder())
-                {
-                    new Figure("rnd");
-                }
-             
-                Figure.Move("down");
-                                        
-                Thread.Sleep(speed);
+
             }
-          
+
         }
 
 

@@ -13,9 +13,9 @@ namespace Tetris
         {
             for (int i = 3; i < 39; i++)        // Вертикальные линии
             {
-                Console.SetCursorPosition(99, i);
+                Console.SetCursorPosition(78, i);
                 Console.Write("█");
-                Console.SetCursorPosition(98, i);
+                Console.SetCursorPosition(77, i);
                 Console.Write("█");
                 Console.SetCursorPosition(19, i);
                 Console.Write("█");
@@ -23,7 +23,7 @@ namespace Tetris
                 Console.Write("█");
             }
 
-            for (int i = 19; i < 100; i++)      // Горизонтальные линии
+            for (int i = 19; i <= 78; i++)      // Горизонтальные линии
             {
                 Console.SetCursorPosition(i, 2);
                 Console.Write("█");
