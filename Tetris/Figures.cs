@@ -12,101 +12,98 @@ namespace Tetris
 
         static List<int[]> coordinates = new List<int[]>();
 
+        static List<int[]> nextFigureCoordinates = new List<int[]>();
+
         public static bool IsMoving = false;
 
         static int[] position = new int[] { PlayGround.leftStart + PlayGround.playgroundWidth / 2, PlayGround.upStart + 1 };
 
         public static int Score = 0;
 
+        public static int nextFigureType = 0;
 
-        public Figure(string figuretype)                // Создание новой фигуры, тип задается вручную или случайным образом
+
+        public Figure()                // Создание новой фигуры, тип задается случайным образом
         {
-         
-            Console.SetCursorPosition(PlayGround.leftStart, PlayGround.upStart - 1);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(PlayGround.leftStart + PlayGround.playgroundWidth + 5, PlayGround.upStart);
             Console.Write($"Score: {Score}");
 
-            coordinates.Clear();                        // Стираем координаты старой фигуры
             position = new int[] { PlayGround.leftStart + PlayGround.playgroundWidth/2, PlayGround.upStart + 1};             // Стираем координаты старой фигуры
 
-            figuretype = figuretype.ToLower();
+            var rnd = new Random();
 
-            if (figuretype.Equals("rnd"))
+            if (nextFigureType == 0)
             {
-                var rnd = new Random();
-      
-                switch (rnd.Next(0, 7))
-                {
-                    case 0:
-                        figuretype = "o";
-                        break;
-                    case 1:
-                        figuretype = "i";
-                        break;
-                    case 2:
-                        figuretype = "s";
-                        break;
-                    case 3:
-                        figuretype = "z";
-                        break;
-                    case 4:
-                        figuretype = "l";
-                        break;
-                    case 5:
-                        figuretype = "j";
-                        break;
-                    case 6:
-                        figuretype = "t";
-                        break;
-                }
+                AddCoordinates(rnd.Next(1, 8));
+                coordinates.AddRange(nextFigureCoordinates);
+                nextFigureCoordinates.Clear();
+
+                nextFigureType = rnd.Next(1, 8);
+                AddCoordinates(nextFigureType);
             }
-            if (figuretype.Equals("o"))
+            else
             {
-                coordinates.Add(new int[] { 0, 0 , 0});         // Первый две цифры - координаты, третья - код цвета
-                coordinates.Add(new int[] { 1, 0 , 0});
-                coordinates.Add(new int[] { 0, 1 , 0});
-                coordinates.Add(new int[] { 1, 1 , 0});
+                ClearNextFigure();
+
+                coordinates.Clear();
+                coordinates.AddRange(nextFigureCoordinates);
+                nextFigureCoordinates.Clear();
+
+                nextFigureType = rnd.Next(1, 8);
+                AddCoordinates(nextFigureType);
             }
-            if (figuretype.Equals("i"))
+
+            DrawNextFigure();
+        }
+
+        public static void AddCoordinates(int figuretype)
+        {
+            switch (figuretype)
             {
-                coordinates.Add(new int[] { 0, 0 , 1});
-                coordinates.Add(new int[] { 0, 1 , 1});
-                coordinates.Add(new int[] { 0, 2 , 1});
-                coordinates.Add(new int[] { 0, 3 , 1});
-            }
-            if (figuretype.Equals("s"))
-            {
-                coordinates.Add(new int[] { 0, 1 , 2});
-                coordinates.Add(new int[] { 1, 1 , 2});
-                coordinates.Add(new int[] { 1, 0 , 2});
-                coordinates.Add(new int[] { 2, 0 , 2});
-            }
-            if (figuretype.Equals("z"))
-            {
-                coordinates.Add(new int[] { 0, 0 , 3});
-                coordinates.Add(new int[] { 1, 0 , 3});
-                coordinates.Add(new int[] { 1, 1 , 3});
-                coordinates.Add(new int[] { 2, 1 , 3});
-            }
-            if (figuretype.Equals("l"))
-            {
-                coordinates.Add(new int[] { 0, 0 , 4});
-                coordinates.Add(new int[] { 0, 1 , 4});
-                coordinates.Add(new int[] { 0, 2 , 4});
-                coordinates.Add(new int[] { 1, 2 , 4});
-            }
-            if (figuretype.Equals("j"))
-            {
-                coordinates.Add(new int[] { 1, 0 , 5});
-                coordinates.Add(new int[] { 1, 1 , 5});
-                coordinates.Add(new int[] { 1, 2 , 5});
-                coordinates.Add(new int[] { 0, 2 , 5});
-            }
-            if (figuretype.Equals("t"))
-            {
-                coordinates.Add(new int[] { 0, 0 , 6});
-                coordinates.Add(new int[] { 1, 0 , 6});
-                coordinates.Add(new int[] { 2, 0 , 6});
-                coordinates.Add(new int[] { 1, 1 , 6});
+                case 1:
+                    nextFigureCoordinates.Add(new int[] { 0, 0, 0 });         // Первый две цифры - координаты, третья - код цвета
+                    nextFigureCoordinates.Add(new int[] { 1, 0, 0 });
+                    nextFigureCoordinates.Add(new int[] { 0, 1, 0 });
+                    nextFigureCoordinates.Add(new int[] { 1, 1, 0 });
+                    break;
+                case 2:
+                    nextFigureCoordinates.Add(new int[] { 0, 0, 1 });
+                    nextFigureCoordinates.Add(new int[] { 0, 1, 1 });
+                    nextFigureCoordinates.Add(new int[] { 0, 2, 1 });
+                    nextFigureCoordinates.Add(new int[] { 0, 3, 1 });
+                    break;
+                case 3:
+                    nextFigureCoordinates.Add(new int[] { 0, 1, 2 });
+                    nextFigureCoordinates.Add(new int[] { 1, 1, 2 });
+                    nextFigureCoordinates.Add(new int[] { 1, 0, 2 });
+                    nextFigureCoordinates.Add(new int[] { 2, 0, 2 });
+                    break;
+                case 4:
+                    nextFigureCoordinates.Add(new int[] { 0, 0, 3 });
+                    nextFigureCoordinates.Add(new int[] { 1, 0, 3 });
+                    nextFigureCoordinates.Add(new int[] { 1, 1, 3 });
+                    nextFigureCoordinates.Add(new int[] { 2, 1, 3 });
+                    break;
+                case 5:
+                    nextFigureCoordinates.Add(new int[] { 0, 0, 4 });
+                    nextFigureCoordinates.Add(new int[] { 0, 1, 4 });
+                    nextFigureCoordinates.Add(new int[] { 0, 2, 4 });
+                    nextFigureCoordinates.Add(new int[] { 1, 2, 4 });
+                    break;
+                case 6:
+                    nextFigureCoordinates.Add(new int[] { 1, 0, 5 });
+                    nextFigureCoordinates.Add(new int[] { 1, 1, 5 });
+                    nextFigureCoordinates.Add(new int[] { 1, 2, 5 });
+                    nextFigureCoordinates.Add(new int[] { 0, 2, 5 });
+                    break;
+                case 7:
+                    nextFigureCoordinates.Add(new int[] { 0, 0, 6 });
+                    nextFigureCoordinates.Add(new int[] { 1, 0, 6 });
+                    nextFigureCoordinates.Add(new int[] { 2, 0, 6 });
+                    nextFigureCoordinates.Add(new int[] { 1, 1, 6 });
+                    break;
             }
         }
 
@@ -143,7 +140,7 @@ namespace Tetris
             {
                 AddFigureToLowerBox();
                 IsRowFull();
-                new Figure("rnd");
+                new Figure();
             }
 
             IsMoving = false;
@@ -397,6 +394,57 @@ namespace Tetris
             }
         }
 
+        public static void DrawNextFigure()                   // Рисуем будущую фигуру
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(PlayGround.leftStart + PlayGround.playgroundWidth + 5, PlayGround.upStart + 2);
+            Console.Write($"Next Figure:");
+
+            switch (nextFigureCoordinates[0][2])
+            {
+                case 0:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case 1:
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    break;
+                case 2:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case 3:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case 4:
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    break;
+                case 5:
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    break;
+                case 6:
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    break;
+            }
+
+            foreach (int[] nextFigureCordinate in nextFigureCoordinates)
+            {
+                Console.SetCursorPosition(nextFigureCordinate[0] * 2 + PlayGround.leftStart + PlayGround.playgroundWidth + 8, nextFigureCordinate[1] + PlayGround.upStart + 4);
+                Console.Write("█");
+                Console.SetCursorPosition(nextFigureCordinate[0] * 2 + 1 + PlayGround.leftStart + PlayGround.playgroundWidth + 8, nextFigureCordinate[1] + PlayGround.upStart + 4);
+                Console.Write("█");
+            }
+        }
+
+        public static void ClearNextFigure()                  // Стираем будущую фигуру
+        {
+            foreach (int[] nextFigureCordinate in nextFigureCoordinates)
+            {
+                Console.SetCursorPosition(nextFigureCordinate[0] * 2 + PlayGround.leftStart + PlayGround.playgroundWidth + 8, nextFigureCordinate[1] + PlayGround.upStart + 4);
+                Console.Write(" ");
+                Console.SetCursorPosition(nextFigureCordinate[0] * 2 + 1 + PlayGround.leftStart + PlayGround.playgroundWidth + 8, nextFigureCordinate[1] + PlayGround.upStart + 4);
+                Console.Write(" ");
+            }
+        }
+
         public static void ClearLowerBox()
         {
             foreach (int[] pointbox in lowerBox)
@@ -408,6 +456,7 @@ namespace Tetris
 
         public static void DrawLowerBox()
         {
+            
             foreach (int[] pointbox in lowerBox)
             {
                 switch (pointbox[2])

@@ -21,7 +21,7 @@ namespace Tetris
 
             PlayGround.DrawBorders();                                                   // Границы игрового поля
 
-            Figure f1 = new Figure("rnd");                                              // Новая фигура случайного типа
+            Figure f1 = new Figure();                                              // Новая фигура случайного типа
 
             Thread Falling = new Thread(new ThreadStart(FigureFalling));                // Отдельный поток для падения фигур вниз
             Falling.Start();
