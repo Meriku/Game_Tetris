@@ -14,15 +14,19 @@ namespace Tetris
 
         public static bool IsMoving = false;
 
-        static int[] position = new int[] { 61, 3 };
+        static int[] position = new int[] { PlayGround.leftStart + PlayGround.playgroundWidth / 2, PlayGround.upStart + 1 };
 
-
+        public static int Score = 0;
 
 
         public Figure(string figuretype)                // Создание новой фигуры, тип задается вручную или случайным образом
         {
+         
+            Console.SetCursorPosition(PlayGround.leftStart, PlayGround.upStart - 1);
+            Console.Write($"Score: {Score}");
+
             coordinates.Clear();                        // Стираем координаты старой фигуры
-            position = new int[] { 61, 3 };             // Стираем координаты старой фигуры
+            position = new int[] { PlayGround.leftStart + PlayGround.playgroundWidth/2, PlayGround.upStart + 1};             // Стираем координаты старой фигуры
 
             figuretype = figuretype.ToLower();
 
@@ -104,26 +108,6 @@ namespace Tetris
                 coordinates.Add(new int[] { 2, 0 , 6});
                 coordinates.Add(new int[] { 1, 1 , 6});
             }
-            if (figuretype.Equals("test"))
-            {
-                Console.ForegroundColor = ConsoleColor.DarkBlue;
-                coordinates.Add(new int[] { 0, 0 });
-                coordinates.Add(new int[] { 0, 1 });
-                coordinates.Add(new int[] { 1, 0 });
-                coordinates.Add(new int[] { 1, 1 });
-                coordinates.Add(new int[] { 2, 0 });
-                coordinates.Add(new int[] { 2, 1 });
-                coordinates.Add(new int[] { 3, 0 });
-                coordinates.Add(new int[] { 3, 1 });
-                coordinates.Add(new int[] { 4, 0 });
-                coordinates.Add(new int[] { 4, 1 });
-                coordinates.Add(new int[] { 5, 0 });
-                coordinates.Add(new int[] { 5, 1 });
-                coordinates.Add(new int[] { 6, 0 });
-                coordinates.Add(new int[] { 6, 1 });
-                coordinates.Add(new int[] { 7, 0 });
-                coordinates.Add(new int[] { 7, 1 });
-            }
         }
 
 
@@ -145,7 +129,7 @@ namespace Tetris
                 position[0] -= 2;
             }
 
-            if (direction.Equals("down") && !IsNextPointLowerBorder())
+            if (direction.Equals("down") && !IsNextPointLowerBox())
             {
                 position[1] += 1;
                 IsMoving = false;
@@ -155,47 +139,91 @@ namespace Tetris
          
             Draw();
 
-            if (IsNextPointLowerBorder())
+            if (IsNextPointLowerBox())
             {
                 AddFigureToLowerBox();
                 IsRowFull();
                 new Figure("rnd");
             }
 
-
-
-
-            // test
-            Console.SetCursorPosition(0, 0);
-            Console.Write($"Cord: {position[0]} and {position[1]}");
-            //test
-
             IsMoving = false;
         }
 
-        public static void Rotate() // TODO: проверка что бы при повороте фигура не оказалась в границе или другой фигуре 
+        public static void Rotate()
         {
             IsMoving = true;
 
             Clear();
 
             foreach (int[] cordinate in coordinates)
+            {             
+                (cordinate[0], cordinate[1]) = (cordinate[1], -cordinate[0]);                
+            }
+
+            while (IsFigureInBorder()) // Если при повороте фигура врезается в границу поля - двигаем её в сторону
             {
-                (cordinate[0], cordinate[1]) = (cordinate[1], -cordinate[0]);
+                if (position[0] < PlayGround.leftStart + PlayGround.playgroundWidth / 2)
+                {
+                    position[0] += 2;
+                }
+                else
+                {
+                    position[0] -= 2;
+                }
+            }
+
+            if (IsFigureInLowerBox()) // Если при повороте фигура врезается в другие фигуры - отменяем поворот 
+            {
+                foreach (int[] cordinate in coordinates)
+                {
+                    (cordinate[0], cordinate[1]) = (-cordinate[1], cordinate[0]);
+                }
             }
 
             Draw();
 
             IsMoving = false;
+
         }
 
+        public static bool IsFigureInBorder()
+        {
+            foreach (int[] cordinate in coordinates)
+            {
+                if ((cordinate[0] * 2 + position[0] > PlayGround.rightBorder) || (cordinate[0] * 2 + 1 + position[0] > PlayGround.rightBorder))
+                {
+                    return true;
+                }
 
-        public static bool IsNextPointLowerBorder()     // Если следующий пиксель - конец игрового поля, или другие фигуры снизу
+                if ((cordinate[0] * 2 + position[0] < PlayGround.leftBorder) || (cordinate[0] * 2 + 1 + position[0] < PlayGround.leftBorder))
+                {       
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsFigureInLowerBox()
+        {
+            foreach (int[] cordinate in coordinates)
+            {
+                foreach (int[] pointbox in lowerBox)    // Перебираем все пиксели фигур снизу
+                {
+                    if (((cordinate[0] * 2 + position[0] == pointbox[0]) || (cordinate[0] * 2 + 1 + position[0] == pointbox[0])) && (cordinate[1] + position[1] == pointbox[1]))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool IsNextPointLowerBox()     // Если следующий пиксель - конец игрового поля, или другие фигуры снизу
         {
 
             foreach (int[] cordinate in coordinates)    // Перебираем все пиксели в фигуре 
             {
-                if (cordinate[1] + position[1] == 37)
+                if (cordinate[1] + position[1] + 1 == PlayGround.lowerBorder)
                 {  
                     return true;
                 }
@@ -219,13 +247,13 @@ namespace Tetris
             {
                 foreach (int[] pointbox in lowerBox)    // Перебираем все пиксели фигур снизу
                 {
-                    if (((cordinate[0] * 2 + position[0] - 1 == pointbox[0]) || (cordinate[0] * 2 + 1 + position[0] - 1 == pointbox[0])) && (cordinate[1] + position[1] == pointbox[1]))
+                    if (((cordinate[0] * 2 + position[0] - 1 == pointbox[0]) || (cordinate[0] * 2 + position[0] == pointbox[0])) && (cordinate[1] + position[1] == pointbox[1]))
                     {       // Есть ли другая фигура слева
                         return true;
                     }    
                 }
                 
-                if ((cordinate[0] * 2 + position[0] < 22) || (cordinate[0] * 2 + position[0] < 22))
+                if ((cordinate[0] * 2 + position[0] - 1 <= PlayGround.leftBorder) || (cordinate[0] * 2 + 1 + position[0] - 1 <= PlayGround.leftBorder))
                 {       // Есть ли край поля слева
                     return true;
                 }
@@ -245,7 +273,7 @@ namespace Tetris
                     }
                 }
 
-                if ((cordinate[0] * 2 + position[0] > 73) || (cordinate[0] * 2 + position[0] > 73))
+                if ((cordinate[0] * 2 + position[0] + 1 >= PlayGround.rightBorder) || (cordinate[0] * 2 + 1 + position[0] + 1 >= PlayGround.rightBorder))
                 {       // Есть ли край поля справа
                     return true;
                 }
@@ -263,8 +291,63 @@ namespace Tetris
                 lowerBox.Add(new int[] { cordinate[0] * 2 + 1 + position[0], cordinate[1] + position[1], cordinate[2] });
             }
         }
+   
+        public static bool IsRowFull() 
+        {
+   
+            for (int rowNumber = 40; rowNumber > PlayGround.upStart; rowNumber--)           // Перебираем все ряды начиная с нижнего
+            {
+                var solidrow = 0;
 
+                for (var i = PlayGround.leftBorder; i <= PlayGround.rightBorder; i++)       // Перебираем все пиксели в ряде
+                {
+                    foreach (int[] pointbox in lowerBox)
+                    {
+                        if (pointbox[1] == rowNumber && pointbox[0] == i)
+                        {
+                            solidrow++;
+                        }
+                    }
+                }
 
+                if (solidrow >= 38) // Если ряд полностью заполнен 
+                {
+                    ClearRow(rowNumber);
+                    Score += 20;
+                    return true;
+                }              
+            }
+            return false;
+        }
+
+        public static void ClearRow(int rownumber)
+        {   
+            ClearLowerBox();
+
+            var i = lowerBox.Count - 1;
+            while (i >= 0)
+            {
+                if (lowerBox[i][1] == rownumber)
+                {
+                    lowerBox.RemoveAt(i);
+                }
+
+                i--;
+            }
+            MoveAllDown(rownumber);
+        }
+
+        public static void MoveAllDown(int rownumber)
+        {          
+            foreach (int[] pointbox in lowerBox)
+            {
+                if (pointbox[1] <= rownumber)
+                {
+                    pointbox[1] += 1;
+                }
+            }
+            DrawLowerBox();
+        }
 
         public static void Clear()                  // Стираем предыдущее положение фигуры
         {
@@ -277,10 +360,9 @@ namespace Tetris
             }
         }
 
-
         public static void Draw()                   // Рисуем фигуру
         {
-         
+
             switch (coordinates[0][2])
             {
                 case 0:
@@ -305,7 +387,7 @@ namespace Tetris
                     Console.ForegroundColor = ConsoleColor.DarkBlue;
                     break;
             }
-          
+
             foreach (int[] cordinate in coordinates)
             {
                 Console.SetCursorPosition(cordinate[0] * 2 + position[0], cordinate[1] + position[1]);
@@ -313,77 +395,6 @@ namespace Tetris
                 Console.SetCursorPosition(cordinate[0] * 2 + 1 + position[0], cordinate[1] + position[1]);
                 Console.Write("█");
             }
-        }
-
-   
-
-        public static bool IsRowFull() // TODO: удаление рядов / в данный момент не работает, на этапе разработки 
-        {
-                 
-            for (int r = 37; r > 0; r--) // Перебираем все ряды начиная с нижнего
-            {
-                var solidrow = 0;
-
-                for (var i = 21; i <= 76; i++)      // Перебираем все пиксели в ряде
-                {
-                    foreach (int[] pointbox in lowerBox)
-                    {
-                        if (pointbox[1] == r && pointbox[0] == i)
-                        {
-                            solidrow++;
-                        }
-                    }
-                }
-
-                if (solidrow >= 56) // Если ряд полностью заполнен 
-                {
-                    ClearRow(r);
-                    return true;
-                }
-
-
-            }
-
-
-            //test
-            Console.SetCursorPosition(60, 0);
-            Console.Write($"Figures in lowerbox: {lowerBox.Count}");
-            //test
-
-            return false;
-        }
-
-        public static void ClearRow(int rownumber)
-        {
-            ClearLowerBox();
-
-            var i = lowerBox.Count - 1;
-            while (i >= 0)
-            {
-                if (lowerBox[i][1] == rownumber)
-                {
-                    lowerBox.RemoveAt(i);
-                }
-
-                i--;
-            }
-
-
-            MoveAllDown(rownumber);
-        }
-
-        public static void MoveAllDown(int rownumber)
-        {
-            
-            foreach (int[] pointbox in lowerBox)
-            {
-                if (pointbox[1] <= rownumber)
-                {
-                    pointbox[1] += 1;
-                }
-            }
-
-            DrawLowerBox();
         }
 
         public static void ClearLowerBox()
@@ -429,7 +440,5 @@ namespace Tetris
             }
             IsRowFull();
         }
-
-
     }
 }

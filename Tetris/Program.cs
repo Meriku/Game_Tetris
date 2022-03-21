@@ -9,10 +9,9 @@ namespace Tetris
 {
     internal class Program
     {
-
+      
         static object locker = new object();
-
-        static int speed = 500;
+        static int speed = 300;
 
         static void Main(string[] args)
         {
@@ -29,7 +28,7 @@ namespace Tetris
 
             while (true)
             {
-                
+
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 if (!Figure.IsMoving)
@@ -40,7 +39,7 @@ namespace Tetris
                     }
                     if (key.Key.Equals(ConsoleKey.DownArrow))
                     {
-                        speed = 10;
+                        speed = 30;
                     }
                     if (key.Key.Equals(ConsoleKey.LeftArrow))
                     {
@@ -51,11 +50,7 @@ namespace Tetris
                         Figure.Move("right");
                     }             
                 }
- 
-
-
             }
-
         }
 
 
@@ -63,7 +58,11 @@ namespace Tetris
         {
             while (true)
             {
-             
+                if (speed < 300 - Figure.Score)
+                {
+                    speed += 50;
+                }
+
                 lock (locker)
                 {
                     if (!Figure.IsMoving)
@@ -75,17 +74,9 @@ namespace Tetris
                         
                 }
 
-                if (speed < 500)
-                {
-                    speed += 50;
-                }
-
-
             }
 
         }
-
-
 
     }
 }

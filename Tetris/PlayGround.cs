@@ -9,31 +9,38 @@ namespace Tetris
     internal class PlayGround
     {
 
+        public static int playgroundHeight = 28;
+        public static int playgroundWidth = 40;
+
+        public static int upStart = 4;
+        public static int leftStart = 18;
+
+        public static int leftBorder = leftStart + 1;
+        public static int rightBorder = leftStart + playgroundWidth;
+        public static int lowerBorder = upStart + playgroundHeight;
+
         public static void DrawBorders()        // Рисуем границы игрового поля
         {
-            for (int i = 3; i < 39; i++)        // Вертикальные линии
+            for (int i = 0; i <= playgroundHeight; i++)        // Вертикальные линии
             {
-                Console.SetCursorPosition(78, i);
+       
+                Console.SetCursorPosition(leftStart, i + upStart);
                 Console.Write("█");
-                Console.SetCursorPosition(77, i);
+                Console.SetCursorPosition(leftStart + 1, i + upStart);
                 Console.Write("█");
-                Console.SetCursorPosition(19, i);
+                Console.SetCursorPosition(leftStart + playgroundWidth, i + upStart);
                 Console.Write("█");
-                Console.SetCursorPosition(20, i);
+                Console.SetCursorPosition(leftStart + playgroundWidth + 1, i + upStart);
                 Console.Write("█");
             }
 
-            for (int i = 19; i <= 78; i++)      // Горизонтальные линии
+            for (int i = 0; i <= playgroundWidth; i++)      // Горизонтальные линии
             {
-                Console.SetCursorPosition(i, 2);
+                Console.SetCursorPosition(i + leftStart, upStart);
                 Console.Write("█");
-                Console.SetCursorPosition(i, 38);
+                Console.SetCursorPosition(i + leftStart, upStart + playgroundHeight);
                 Console.Write("█");
             }
         }
-
-
-
-
     }
 }
