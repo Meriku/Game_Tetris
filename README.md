@@ -12,3 +12,6 @@ This classic Tetris game is implemented in .NET with a console-based user interf
 - Right Arrow: Move the tetromino right.
 - Down Arrow: Move the tetromino down (faster descent).
 - Up Arrow: Rotate the tetromino.
+
+## Screenshots 
+![Main](/github/Screenshot_1.jpg?raw=true "Main")
